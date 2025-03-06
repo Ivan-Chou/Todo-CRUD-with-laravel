@@ -4,11 +4,11 @@
         <title>Todo List</title>
     </head>
     <body>
-        <h1>Todo List of @php $username @endphp </h1>
+        <h1>Todo List of {{ $username }}</h1>
         <form method="POST" action="/todolist/create">
             @csrf
             <input type="text" name="task" placeholder="What needs to be done?">
-            <input type="date" name="deadline" placeholder="Deadline">
+            <input type="date" name="deadline">
             <button type="submit">Add</button>
         </form>
 
@@ -22,9 +22,9 @@
             </thead>
             @foreach ($todos as $todo)
                 <tr>
-                    <td>{{ $todo->task }}</td>
-                    <td>{{ $todo->deadline }}</td>
-                    <td>
+                    <td style="border: 1px solid black">{{ $todo->task }}</td>
+                    <td style="border: 1px solid black">{{ $todo->deadline }}</td>
+                    <td style="border: 1px solid black">
                         <form method="POST" action="/todolist/delete/{{ $todo->id }}">
                             @csrf
                             @method('DELETE')
