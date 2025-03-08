@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\TodoListController;
 
 Route::get('/', function (){
     return redirect('/login');
@@ -11,16 +8,13 @@ Route::get('/', function (){
 
 Route::get('/login', function () {
     return view('login');
-});
-Route::post('/login', [AuthController::class, 'login']);
+})->name('login');
 
-Route::get('/logout', [AuthController::class, 'logout']);
+// Todo: change callback func to return some view (maybe not used)
+// Route::get('/logout', [AuthController::class, 'logout']);
 
 Route::get('/register', function () {
     return view('register');
-});
-Route::post('/register', [RegisterController::class, 'register']);
+})->name('register');
 
-Route::get('/todolist', [TodoListController::class, 'showList']);
-Route::post('/todolist/create', [TodoListController::class, 'addNewTodo']);
-Route::delete('/todolist/delete/{todo_id}', [TodoListController::class, 'deleteTodo']);
+// Todo: add an auto verify middleware and change get(todolist) to return some view 
