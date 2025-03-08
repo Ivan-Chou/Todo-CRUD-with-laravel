@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Note: effect Unknown
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ]
     ],
 
     /*
