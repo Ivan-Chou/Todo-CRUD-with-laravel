@@ -5,48 +5,54 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Services\UserService;
 
 class AuthController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService){
+        $this->userService = $userService;
+    }
+
+    /**
+     * 判斷使用者是否登入成功
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
+        // Todo: use FormRequest instead of Request to validate the input
+
         $credentials = $request->only('username', 'password');
-        
-        // check sqlite database for user
-        $user = User::where('username', $credentials['username'])->first();
-        
-        if (!$user) {
-            // tell the user that the username does not exist
 
-            return redirect()->back()->with('error','UserDoesNotExist');
+        //
+        
+        $loginStatus = $this->userService->verifyUser($credentials);
+        
+        // Todo: add token to the user
+
+        if($loginStatus['success']){
+            $user = $loginStatus['user'];
+
+            $token = $user->createToken('authToken')->plainTextToken;
+
+            $loginStatus['access_token'] = $token;
+            $loginStatus['token_type'] = 'Bearer';
         }
 
-        if (!Hash::check($credentials['password'], $user->password)) {
-            // tell the user that the password is incorrect
+        // Thinking: maybe remove the User from the login status?
 
-            return redirect()->back()->with('error','IncorrectPassword');
-        }
-        
-        $request->session()->put('user', $user);
-
-        // give the user a cookie
-        $cookie = cookie('user', $user->username, 60);
-
-        return redirect()->intended('/todolist')->withCookie($cookie);
+        return response()->json($loginStatus);
     }
 
     public function logout(Request $request)
     {
-        $request->session()->invalidate();
+        // remove the token?
 
-        $request->session()->regenerateToken();
+        $request->user()->tokens()->delete();
 
-        // remove the cookie
-        $cookie = cookie('user', null, -1);
-
-        return redirect()->intended('/login')->withCookie($cookie);
+        return response()->json();
     }
 }
 

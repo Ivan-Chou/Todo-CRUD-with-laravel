@@ -4,60 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Todo;
+
+use App\Services\TodoService;
 
 class TodoListController extends Controller
 {
-    public function showList(Request $request)
-    {
-        $user = $request->session()->get('user');
+    protected $todoService;
 
-        if (!$user) {
-            return redirect()->intended('/login');
-        }
+    public function __construct(TodoService $todoService){
+        $this->todoService = $todoService;
+    }
+
+    public function index(Request $request)
+    {
+        // Todo: use FormRequest instead of Request to validate the input
+        $user = $request->user();
 
         $user->load('todos');
 
-        return view('todolist', ['username' => $user->username, 'todos' => $user->todos]);
+        return response()->json($user->todos);
     }
 
-    public function addNewTodo(Request $request)
+    public function store(Request $request)
     {
-        $user = $request->session()->get('user');
+        // Todo: use FormRequest instead of Request to validate the input
 
-        if (!$user) {
-            return redirect()->intended('/login');
-        }
+        $data = $request->only('task', 'deadline');
 
-        $content = $request->only('task', 'deadline');
+        $data['user_id'] = $request->user()->id;
+        
+        $createStatus = $this->todoService->createNewTodo($data);
 
-        // $task = $request->input('task');
-        // $deadline = $request->input('deadline');
-
-        $todo = new Todo();
-        $todo->user_id = $user->id;
-        $todo->task = $content['task'];
-        $todo->deadline = $content['deadline'];
-        $todo->save();
-
-        return redirect()->intended('/todolist');
+        return response()->json($createStatus);
     }
 
-    public function deleteTodo(Request $request, string $todo_id){
-        $user = $request->session()->get('user');
-
-        if (!$user) {
-            return redirect()->intended('/login');
-        }
-
-        $toRemove = Todo::find($todo_id);
+    public function destroy(Request $request, string $todo_id){
+        $deleteStatus = $this->todoService->deleteTodo($todo_id);
         
-        if ($toRemove) {
-            $toRemove->delete();
-        }
-        
-        return redirect()->intended('/todolist');
+        return response()->json($deleteStatus);
     }
 
     // public function editTodo(Request $request, Todo $todo){}
