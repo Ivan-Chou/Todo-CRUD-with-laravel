@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UserInfoRequest extends FormRequest
 {
@@ -36,7 +38,7 @@ class UserInfoRequest extends FormRequest
                 "regex:/^[a-zA-Z0-9]{" . self::USERNAME_LEN_MIN . ", " . self::USERNAME_LEN_MAX . "}$/"
             ],
 
-            // 必填, 要是字串, 6-20 字元(thinking: 禁用 sql 語法相關字元)
+            // 必填, 要是字串, 6-20 字元
             "password" => [
                 "required",
                 "string",
@@ -61,4 +63,15 @@ class UserInfoRequest extends FormRequest
     }
 
     // Todo: 可能需要自訂錯誤回應以符合公司規範
+    public function failedValidation(Validator $validator)
+    {
+        // validator->errors() 會回傳 [有問題欄位名 => 上方 messages() 定義的錯誤訊息]
+        // 422 代表資料有問題
+        $response = response()->json([
+            "message" => "The given data was invalid.",
+            "errors" => $validator->errors(),
+        ], 422);
+
+        throw new HttpResponseException($response);
+    }
 }
