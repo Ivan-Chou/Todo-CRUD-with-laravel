@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Arr;
+
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+// use Illuminate\Http\Request;
+use App\Http\Requests\UserInfoRequest;
 
 use App\Services\UserService;
 
@@ -17,17 +18,12 @@ class RegisterController extends Controller
         $this->userServices = $userServices;
     }
 
-    public function register(Request $request)
+    public function register(UserInfoRequest $request)
     {
-        // Todo: use FormRequest instead of Request to validate the input
-        // // check if username obeys the rules: only letters and numbers, 3-20 characters
-        // if (!preg_match('/^[a-zA-Z0-9]{3,20}$/', $credentials['username'])) {
-        //     // tell the user that the username is invalid
+        // $request->validated returns value, but not used since we'll extract data by $request->only(...)
+        $request->validated();
 
-        //     return redirect()->back()->with('error','InvalidUsername');
-        // }
-
-        $credentials = $request->only('username', 'password');
+        $credentials = $request->only("username", "password");
         
         $createStatus = $this->userServices->createNewUser($credentials);
 

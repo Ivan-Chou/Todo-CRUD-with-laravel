@@ -15,9 +15,14 @@ class TodoListController extends Controller
         $this->todoService = $todoService;
     }
 
+    /**
+     * Get the full list of todos of the user
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
-        // Todo: use FormRequest instead of Request to validate the input
         $user = $request->user();
 
         $user->load('todos');
@@ -25,6 +30,12 @@ class TodoListController extends Controller
         return response()->json($user->todos);
     }
 
+    /**
+     * Create a new todo
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         // Todo: use FormRequest instead of Request to validate the input
@@ -38,6 +49,13 @@ class TodoListController extends Controller
         return response()->json($createStatus);
     }
 
+    /**
+     * Delete a todo
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param string $todo_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, string $todo_id){
         $deleteStatus = $this->todoService->deleteTodo($todo_id);
         

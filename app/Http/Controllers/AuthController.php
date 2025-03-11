@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UserInfoRequest;
 use App\Services\UserService;
 
 class AuthController extends Controller
@@ -20,17 +20,14 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
+    public function login(UserInfoRequest $request)
     {
-        // Todo: use FormRequest instead of Request to validate the input
+        // $request->validated returns value, but not used since we'll extract data by $request->only(...)
+        $request->validated();
 
         $credentials = $request->only('username', 'password');
-
-        //
         
         $loginStatus = $this->userService->verifyUser($credentials);
-        
-        // Todo: add token to the user
 
         if($loginStatus['success']){
             $user = $loginStatus['user'];
@@ -49,10 +46,11 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // remove the token?
+        // Thinking: check if token is valid first
 
         $request->user()->tokens()->delete();
 
-        return response()->json();
+        return response()->json(['success'=> true, "message" => "Logout successfully"]);
     }
 }
 
