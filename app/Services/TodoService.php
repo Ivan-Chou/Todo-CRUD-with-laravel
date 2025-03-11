@@ -23,16 +23,15 @@ class TodoService{
         // [$task, $deadline] = $data;
         $stat = [
             "success" => true,
-            "msg" => "Todo created successfully",
+            "message" => "Todo created successfully",
         ];
-
-        // Todo: should get current user id from somewhere
+        
         // Thinking: 如果我需要去查 User Table 以取得 User ID 甚或 object，我是否可以引入 UserRepository 來處理？
         $todo = $this->todoRepository->create($data);
 
         if(!$todo){
             $stat['success'] = false;
-            $stat['msg'] = 'Todo creation failed';
+            $stat['message'] = 'Todo creation failed';
         }
 
         return $stat;
@@ -48,7 +47,7 @@ class TodoService{
     public function deleteTodo(int $id): array{
         $stat = [
             "success" => true,
-            "msg" => "Todo deleted successfully",
+            "message" => "Todo deleted successfully",
         ];
 
         // Todo: (?)check whether the user has the permission to delete that todo
@@ -57,7 +56,7 @@ class TodoService{
 
         if(!$delResult){
             $stat["success"] = true;
-            $stat["msg"] = "Todo not found";
+            $stat["message"] = "Todo not found";
         }
 
         return $stat;

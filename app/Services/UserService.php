@@ -36,8 +36,7 @@ class UserService
     /**
      * 創建新使用者
      * 
-     * @param string $username
-     * @param string $password
+     * @param array ['username' => string, 'password' => string]
      * 
      * @return array ['success' => bool, 'message' => string]
      */
@@ -79,8 +78,7 @@ class UserService
     /**
      * 驗證使用者
      * 
-     * @param string $username
-     * @param string $password
+     * @param array ['username' => string, 'password' => string]
      * 
      * @return array ['success' => bool, 'message' => string, 'user' => User]
      */
