@@ -27,11 +27,9 @@ class AuthController extends Controller
 
         $credentials = $request->only('username', 'password');
         
-        $loginStatus = $this->userService->verifyUser($credentials);
+        [$loginStatus, $user] = $this->userService->verifyUser($credentials);
 
         if($loginStatus['success']){
-            $user = $loginStatus['user'];
-
             $token = $user->createToken('authToken')->plainTextToken;
 
             $loginStatus['access_token'] = $token;
@@ -53,5 +51,3 @@ class AuthController extends Controller
         return response()->json(['success'=> true, "message" => "Logout successfully"]);
     }
 }
-
-// intended('/login')

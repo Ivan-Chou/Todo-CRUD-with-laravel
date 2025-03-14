@@ -20,6 +20,7 @@ class TodoRepository {
      * @return Todo|null
      */
     public function getTodoById(int $todo_id): Todo{
+        // guarantee: 若 todo 存在，則必只有一個(因為 id 是 primary key)
         return Todo::find($todo_id);
     }
 

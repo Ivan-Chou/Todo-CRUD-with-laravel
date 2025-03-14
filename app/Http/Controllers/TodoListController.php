@@ -41,10 +41,8 @@ class TodoListController extends Controller
         // Todo: use FormRequest instead of Request to validate the input
 
         $data = $request->only('task', 'deadline');
-
-        $data['user_id'] = $request->user()->id;
         
-        $createStatus = $this->todoService->createNewTodo($data);
+        $createStatus = $this->todoService->createNewTodo($data, $request->user()->id);
 
         return response()->json($createStatus);
     }
@@ -57,7 +55,7 @@ class TodoListController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, string $todo_id){
-        $deleteStatus = $this->todoService->deleteTodo($todo_id);
+        $deleteStatus = $this->todoService->deleteTodo($todo_id, $request->user()->id);
         
         return response()->json($deleteStatus);
     }

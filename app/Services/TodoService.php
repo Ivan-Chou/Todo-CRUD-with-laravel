@@ -15,19 +15,38 @@ class TodoService{
     /**
      * create new todo in the database
      * 
-     * @param array ['user_id' => int, task => string, deadline => string]
+     * @param array ['task' => string, 'deadline' => string]
+     * @param int $userId
      * 
-     * @return array [success, message]
+     * @return array ['success' => bool, 'message' => string]
      **/
-    public function createNewTodo(array $data){
-        // [$task, $deadline] = $data;
+    public function createNewTodo(array $data, int $userId){
         $stat = [
             "success" => true,
             "message" => "Todo created successfully",
         ];
         
-        // Thinking: 如果我需要去查 User Table 以取得 User ID 甚或 object，我是否可以引入 UserRepository 來處理？
-        $todo = $this->todoRepository->create($data);
+        // TODO: use FormRequest instead of Request to validate the input
+        
+        // // check whether the task is empty
+        // if(!isset($data["task"])){
+        //     $stat['success'] = false;
+        //     $stat['message'] = 'Task cannot be empty';
+        //     return $stat;
+        // }
+
+        // // check whether the deadline is valid (not empty && later than "now")
+        // if(!isset($data['deadline']) || strtotime($data['deadline']) < time()){
+        //     $stat['success'] = false;
+        //     $stat['message'] = 'Invalid deadline';
+        //     return $stat;
+        // }
+
+        $todo_info = $data;
+
+        $todo_info['user_id'] = $userId;
+
+        $todo = $this->todoRepository->create($todo_info);
 
         if(!$todo){
             $stat['success'] = false;
@@ -42,22 +61,31 @@ class TodoService{
      * 
      * @param int $id
      * 
-     * @return array [success, message]
+     * @return array ['success' => bool, 'message' => string]
      **/
-    public function deleteTodo(int $id): array{
+    public function deleteTodo(int $id, int $userId): array{
         $stat = [
             "success" => true,
             "message" => "Todo deleted successfully",
         ];
 
-        // Todo: (?)check whether the user has the permission to delete that todo
+        $toDelete = $this->todoRepository->getTodoById($id);
 
-        $delResult = $this->todoRepository->delete($id);
-
-        if(!$delResult){
+        // check whether the todo exists
+        if(!$toDelete){
             $stat["success"] = true;
             $stat["message"] = "Todo not found";
+            return $stat;
         }
+
+        // check whether the user has the permission to delete that todo
+        if($userId != $toDelete->user_id){
+            $stat["success"] = false;
+            $stat["message"] = "Not the owner of this todo";
+            return $stat;
+        }
+
+        $this->todoRepository->delete($id);
 
         return $stat;
     }

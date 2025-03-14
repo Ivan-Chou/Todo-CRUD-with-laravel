@@ -80,7 +80,7 @@ class UserService
      * 
      * @param array ['username' => string, 'password' => string]
      * 
-     * @return array ['success' => bool, 'message' => string, 'user' => User]
+     * @return array [['success' => bool, 'message' => string], 'user' => User]
      */
     public function verifyUser(array $data)
     {
@@ -89,7 +89,6 @@ class UserService
         $stat = [
             "success"=> true,
             "message"=> "Logged in successfully",
-            "user"=> null,
         ];
 
         $user = $this->userRepository->getUserByName($username);
@@ -103,8 +102,6 @@ class UserService
             $stat["message"] = "Password incorrect";
         }
 
-        $stat["user"] = $user;
-
-        return $stat;
+        return [$stat, $user];
     }
 }
