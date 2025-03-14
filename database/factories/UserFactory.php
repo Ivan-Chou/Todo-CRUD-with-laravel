@@ -14,7 +14,7 @@ class UserFactory extends Factory
     /**
      * The current password being used by the factory.
      */
-    protected static ?string $password;
+    protected static ?string $password = null;
 
     /**
      * Define the model's default state.
@@ -23,8 +23,16 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $username = $this->faker->unique()->userName;
+
+        if(strlen($username) < 3){
+            $username .= Str::random(3);
+        }else if(strlen($username) > 20){
+            $username = substr($username, 0, 20);
+        }
+
         return [
-            "username" => $this->faker->unique()->userName,
+            "username" => $username,
             "password" => static::$password ?: static::$password = Hash::make("password"), // "password" 可能可以換成 by random
         ];
     }

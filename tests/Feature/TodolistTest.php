@@ -10,6 +10,7 @@ use Tests\TestCase;
 
 use App\Models\User;
 use App\Models\Todo;
+use function PHPUnit\Framework\assertJson;
 
 class TodolistTest extends TestCase
 {
@@ -29,9 +30,24 @@ class TodolistTest extends TestCase
 
         $token = $user->createToken("authToken")->plainTextToken;
 
-        $response = $this->get('/api/todolist', [
+        // 以 TodoFactory 建立一筆資料
+        $todo = Todo::factory()->create([
+            'user_id'=> $user->id,
+            'task'=> 'test task',
+            'deadline'=> '2025-12-31',
+        ]);
+
+        // 先檢查是否可見
+        $response = $this->getJson('/api/todolist', [
             'Authorization' => "Bearer $token",
         ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJson([[
+            'task'=> 'test task',
+            'deadline'=> '2025-12-31',
+        ]]);
     }
 
     /**
@@ -72,17 +88,17 @@ class TodolistTest extends TestCase
         ]);
         
         // 2. 確認使用者刷新後可見
-        $response_refresh = $this->get('/api/todolist', [
+        $response_refresh = $this->getJson('/api/todolist', [
             'Authorization' => "Bearer $token",
         ]);
 
         $response_refresh->assertStatus(200);
 
-        // TODO: 理論上會收到 array of todos，需確認此 assert 是否可正確找到剛剛新增的 todo 單項
-        $response_refresh->assertJson([
+        // 在 target Json 外再包一層 array 以在 array of todos 裡尋找
+        $response_refresh->assertJson([[
             'task'=> 'test task',
             'deadline'=> '2025-12-31',
-        ]);
+        ]]);
     }
 
     // TODO: 建立 "因 時間非未來 或 任務名稱為空 或 任務名稱過長" 的測試
@@ -102,21 +118,14 @@ class TodolistTest extends TestCase
 
         $token = $user->createToken("authToken")->plainTextToken;
         
-        // 先 create，再 delete 該項目
-        $response_create = $this->postJson('/api/todolist', [
+        // 以 TodoFactory 建立一筆資料
+        $todo = Todo::factory()->create([
             'user_id'=> $user->id,
-            'task' => 'test task',
-            "deadline"=> "2025-12-31",
-        ], [
-            'Authorization'=> "Bearer $token",
+            'task'=> 'test task',
+            'deadline'=> '2025-12-31',
         ]);
 
-        // 取得剛剛新增的 todo 的 id
-        // TODO: 雖然理論上剛剛創建的會是最後一個，但這樣的寫法仍然存在 assumption
-        $response_arr = $response_create->json();
-        $todo_id = $response_arr[count($response_arr) - 1]["todo_id"];
-
-        $response_delete = $this->deleteJson("/api/todolist/$todo_id", [], [
+        $response_delete = $this->deleteJson("/api/todolist/$todo->id", [], [
             "Authorization" => "Bearer $token",
         ]);
 
