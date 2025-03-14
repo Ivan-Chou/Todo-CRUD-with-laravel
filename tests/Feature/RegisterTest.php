@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+use PHPUnit\Framework\Attributes\Test;
+
 use App\Models\User;
 
 class RegisterTest extends TestCase
@@ -15,8 +17,8 @@ class RegisterTest extends TestCase
     /**
      * register successfully
      *
-     * @test 
      */
+    #[Test]
     public function register_success(): void
     {
         $response = $this->postJson('/api/register', [
@@ -32,8 +34,8 @@ class RegisterTest extends TestCase
      * register failed because username is too short
      * should be blocked by FormRequest (UserInfoRequest)
      * 
-     * @test
      */
+    #[Test]
     public function register_failed_usernameTooShort(): void
     {
         $response = $this->postJson('/api/register', [
@@ -55,8 +57,8 @@ class RegisterTest extends TestCase
      * register failed because password is too short
      * should be blocked by FormRequest (UserInfoRequest)
      * 
-     * @test
      */
+    #[Test]
     public function register_failed_passwordTooShort(): void
     {
         $response = $this->postJson('/api/register', [

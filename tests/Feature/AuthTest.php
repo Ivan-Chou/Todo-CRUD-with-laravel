@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 
+use PHPUnit\Framework\Attributes\Test;
+
 use Tests\TestCase;
 
 use App\Models\User;
@@ -17,8 +19,8 @@ class AuthTest extends TestCase
     /**
      * login successfully
      * 
-     * @test
      */
+    #[Test]
     public function login_success(): void
     {
         $username = 'test';
@@ -45,8 +47,8 @@ class AuthTest extends TestCase
     /**
      * login failed because user not exist
      * 
-     * @test
      */
+    #[Test]
     public function login_failed_userNotExist(): void
     {
         $username = 'test';
@@ -69,8 +71,8 @@ class AuthTest extends TestCase
     /**
      * login failed because password is wrong
      * 
-     * @test
      */
+    #[Test]
     public function login_failed_passwordNotCorrect(): void
     {
         $username = 'test';
@@ -97,8 +99,8 @@ class AuthTest extends TestCase
     /**
      * logout successfully
      * 
-     * @test
      */
+    #[Test]
     public function logout_success(): void
     {
         $username = 'test';

@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 
+use PHPUnit\Framework\Attributes\Test;
+
 use Tests\TestCase;
 
 use App\Models\User;
@@ -20,7 +22,9 @@ class TodolistTest extends TestCase
 
     /**
      * an user should see all of his/her todolists
+     * 
      */
+    #[Test]
     public function user_can_see(): void
     {
         $user = User::factory()->create([
@@ -54,8 +58,8 @@ class TodolistTest extends TestCase
      * an user can create a todolist
      * create a todo by POST "/api/todolist" 
      * 
-     * @test
      */
+    #[Test]
     public function user_can_create(): void
     {
         $user = User::factory()->create([
@@ -106,9 +110,9 @@ class TodolistTest extends TestCase
     /**
      * an user can delete a todolist
      * delete a todo by DELETE "/api/todolist/{todo_id}"
-     * 
-     * @test
+     *
      */
+    #[Test]
     public function user_can_delete(): void
     {
         $user = User::factory()->create([
@@ -136,10 +140,41 @@ class TodolistTest extends TestCase
         ]);
     }
 
-    // TODO: 建立 "未擁有權限(並非條目擁有者)" 的測試
-    public function user_update_NotOwner(): void
+    /** 
+     * "未擁有權限(並非條目擁有者)" 的測試
+     * Created by user1, but deleted by user2 
+     */
+    #[Test]
+    public function user_delete_NotOwner(): void
     {
-        // ...
+        $user1 = User::factory()->create([
+            "username"=> "test",
+            "password"=> Hash::make("test0000"),
+        ]);
+
+        $user2 = User::factory()->create([
+            "username"=> "test2",
+            "password"=> Hash::make("test0000"),
+        ]);
+
+        $todo = Todo::factory()->create([
+            'user_id'=> $user1->id,
+            'task'=> 'test task',
+            'deadline'=> '2025-12-31',
+        ]);
+
+        $token = $user2->createToken("authToken")->plainTextToken;
+
+        $response = $this->delete("/api/todolist/$todo->id", [], [
+            'Authorization' => "Bearer $token",
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            "success" => false,
+            "message" => "Not the owner of this todo",
+        ]);
     }
 
     // TODO: 建立 "刪除欄目不存在" 的測試
